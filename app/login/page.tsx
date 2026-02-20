@@ -16,6 +16,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -38,6 +42,35 @@ export default function LoginPage() {
       toast.error('Đã xảy ra lỗi khi đăng nhập');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      toast.error('Vui lòng nhập email');
+      return;
+    }
+
+    setForgotLoading(true);
+
+    try {
+      const res = await fetch('/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+
+      if (res.ok) {
+        toast.success('Nếu email tồn tại, link reset đã được gửi!');
+        setForgotOpen(false);
+        setForgotEmail('');
+      } else {
+        toast.error('Có lỗi xảy ra');
+      }
+    } catch (error) {
+      toast.error('Server error');
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -84,6 +117,17 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* 🔥 Nút quên mật khẩu */}
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setForgotOpen(true)}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
+
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
@@ -117,6 +161,38 @@ export default function LoginPage() {
           </Link>
         </div>
       </div>
+
+      {/* 🔥 Modal Quên mật khẩu */}
+      {forgotOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-6 w-80 shadow-xl">
+            <h2 className="text-lg font-semibold mb-4">Quên mật khẩu</h2>
+
+            <Input
+              type="email"
+              placeholder="Nhập email của bạn"
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+            />
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setForgotOpen(false)}
+              >
+                Hủy
+              </Button>
+
+              <Button
+                onClick={handleForgotPassword}
+                disabled={forgotLoading}
+              >
+                {forgotLoading ? 'Đang gửi...' : 'Gửi link'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
