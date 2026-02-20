@@ -139,7 +139,7 @@ export default function AdminPage() {
             <div className="flex items-center space-x-2">
               <FileSpreadsheet className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900">
-                MISA Invoice Manager - Admin
+                HDDT- Admin
               </span>
             </div>
             <div className="flex items-center space-x-4">
